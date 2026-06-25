@@ -28,3 +28,10 @@ datasets/
 
 # Temporary files
 *.log
+
+
+
+venv/
+__pycache__/
+*.pyc
+.env

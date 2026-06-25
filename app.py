@@ -169,6 +169,22 @@ def main():
 
             is_ood = result["is_ood"]
 
+            # -------------------------
+            # FAISS Detection
+            # -------------------------
+
+            faiss_result = detector.faiss_detect(
+                feature_vector
+            )
+
+            faiss_distance = (
+                faiss_result["distance"]
+            )
+
+            faiss_ood = (
+                faiss_result["is_ood"]
+            )   
+#------------------------------------------------ faiss nuha
             predicted_class = (
                 CIFAR_CLASSES[class_id]
             )
@@ -219,7 +235,12 @@ def main():
                     "Distance",
                     f"{distance:.2f}"
                 )
-
+#---------------------------------------------nua
+                st.metric(
+                    "FAISS Distance",
+                    f"{faiss_distance:.2f}"
+                )
+#----------------------------------------------
             with col2:
 
                 st.metric(
@@ -238,6 +259,19 @@ def main():
                     st.success(
                         "In Distribution"
                     )
+#----------------------------------------------nua                    
+                if faiss_ood:
+
+                    st.warning(
+                        "FAISS: OOD"
+                    )
+
+                else:
+
+                    st.info(
+                        "FAISS: In Distribution"
+                    )
+#---------------------------------------------------
 
             # -------------------------
             # Top 3 Closest Classes

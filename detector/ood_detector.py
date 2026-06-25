@@ -1,3 +1,5 @@
+from faiss_module.faiss_index import FAISSDetector  #nuha
+
 import torch
 
 from detector.mahalanobis import (
@@ -6,6 +8,9 @@ from detector.mahalanobis import (
 
 
 class OODDetector:
+
+    def faiss_detect(self, feature): #nua
+        return self.faiss.detect(feature) #nua
 
     def __init__(self):
 
@@ -17,6 +22,13 @@ class OODDetector:
         self.threshold = torch.load(
             "outputs/threshold.pt"
         )
+        
+        #nua
+        self.faiss = FAISSDetector(
+            "outputs/faiss.index",
+            threshold=50
+        )
+        #nua
 
     def detect(self, feature):
 
@@ -36,3 +48,4 @@ class OODDetector:
             "distance": distance,
             "is_ood": is_ood
         }
+    
