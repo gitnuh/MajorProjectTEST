@@ -18,8 +18,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Model outputs
-outputs/*.pt
+
+# Ignore large intermediate files
+outputs/features.pt
+outputs/labels.pt
 
 # Large datasets
 datasets/
