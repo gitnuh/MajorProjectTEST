@@ -35,3 +35,7 @@ venv/
 __pycache__/
 *.pyc
 .env
+
+data/
+*.tar.gz
+*.zip
