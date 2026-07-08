@@ -39,6 +39,7 @@ loader = DataLoader(
 )
 
 all_features = []
+all_labels = []
 
 print("Extracting features...")
 
@@ -62,9 +63,18 @@ with torch.no_grad():
             features.cpu()
         )
 
+        all_labels.append(
+            labels.numpy()
+        )
+
 features = torch.cat(
     all_features,
     dim=0
+)
+
+labels = np.concatenate(
+    all_labels,
+    axis=0
 )
 
 features = (
@@ -82,6 +92,12 @@ faiss.write_index(
     index,
     "outputs/faiss.index"
 )
+
+np.save(
+    "outputs/faiss_labels.npy",
+    labels
+)
+
 
 print("FAISS index saved.")
 print("Vectors stored:", index.ntotal)

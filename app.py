@@ -159,31 +159,15 @@ def main():
             # OOD Detection
             # -------------------------
 
-            result = detector.detect(
-                feature_vector
-            )
+            result = detector.detect(feature_vector)
 
             class_id = result["class_id"]
-
             distance = result["distance"]
-
             is_ood = result["is_ood"]
 
-            # -------------------------
-            # FAISS Detection
-            # -------------------------
+            # Stage 2 has already been executed inside detector.detect()
+            faiss_result = result if is_ood else None
 
-            faiss_result = detector.faiss_detect(
-                feature_vector
-            )
-
-            faiss_distance = (
-                faiss_result["distance"]
-            )
-
-            faiss_ood = (
-                faiss_result["is_ood"]
-            )   
 #------------------------------------------------ faiss nuha
             predicted_class = (
                 CIFAR_CLASSES[class_id]
@@ -235,12 +219,7 @@ def main():
                     "Distance",
                     f"{distance:.2f}"
                 )
-#---------------------------------------------nua
-                st.metric(
-                    "FAISS Distance",
-                    f"{faiss_distance:.2f}"
-                )
-#----------------------------------------------
+
             with col2:
 
                 st.metric(
@@ -248,30 +227,41 @@ def main():
                     f"{detector.threshold:.2f}"
                 )
 
-                if is_ood:
+                if not is_ood:
 
-                    st.error(
-                        "OOD Detected"
-                    )
+                    st.success("Valid In-Distribution Image")
 
                 else:
 
-                    st.success(
-                        "In Distribution"
-                    )
-#----------------------------------------------nua                    
-                if faiss_ood:
+                    st.warning("Mahalanobis marked image as suspicious")
 
-                    st.warning(
-                        "FAISS: OOD"
+                    st.write("### Stage 2 - FAISS Verification")
+
+                    st.write(
+                        f"Nearest Neighbor Distance: {faiss_result['faiss_distance']:.2f}"
                     )
 
-                else:
-
-                    st.info(
-                        "FAISS: In Distribution"
+                    st.write(
+                        f"Adversarial Ratio: {faiss_result['ratio']:.2%}"
                     )
-#---------------------------------------------------
+
+                    neighbor_names = [
+                        CIFAR_CLASSES[label]
+                        for label in faiss_result["neighbor_labels"]
+                    ]
+
+                    st.write(
+                        f"Nearest Neighbour Classes: {neighbor_names}"
+                    )
+
+                    if faiss_result["sample_type"] == "Adversarial":
+
+                        st.error("Final Decision: Adversarial Attack")
+
+                    else:
+
+                        st.warning("Final Decision: Out-of-Distribution Sample")
+
 
             # -------------------------
             # Top 3 Closest Classes
@@ -327,12 +317,17 @@ def main():
                     """
                     Workflow:
 
-                    Image
-                    → ResNet18
-                    → Feature Vector
-                    → Mahalanobis Distance
-                    → Threshold Check
-                    → ID / OOD Decision
+                        Image
+                        → ResNet18
+                        → Feature Vector
+                        → Mahalanobis Distance
+                        → Stage 1 Decision
+
+                        If suspicious:
+
+                        → FAISS Nearest Neighbour Search
+                        → Adversarial Ratio
+                        → Final Decision
                     """
                 )
 
