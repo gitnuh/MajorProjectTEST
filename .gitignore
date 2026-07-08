@@ -39,4 +39,3 @@ __pycache__/
 data/
 *.tar.gz
 *.zip
-logs/
